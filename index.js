@@ -1,15 +1,14 @@
+// Dependencies
 const express = require('express');
 const multer = require('multer');
 const upload = multer({dest: __dirname + '/uploads/images'});
 const fs = require('fs')
 const app = express();
 const PORT = 3001;
-
-app.use(express.static('public'));
-
-// Dependencies
 const firebaseAdmin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid');
+
+app.use(express.static('public'));
 
 // Change with the path of the json file of the project that contains credentials
 const serviceAccount = require('./ucb-start-test-firebase-adminsdk-o9nau-6390c68f5b.json');
