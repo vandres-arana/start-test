@@ -1,3 +1,12 @@
+const express = require('express');
+const multer = require('multer');
+const upload = multer({dest: __dirname + '/uploads/images'});
+const fs = require('fs')
+const app = express();
+const PORT = 3001;
+
+app.use(express.static('public'));
+
 // Dependencies
 const firebaseAdmin = require('firebase-admin');
 const { v4: uuidv4 } = require('uuid');
@@ -25,8 +34,23 @@ async function uploadFile(path, filename) {
     return storage[0].metadata.mediaLink;
 }
 
-// Test load local image
-(async() => {
-    const url = await uploadFile('./luca.jpeg', "my-image2.jpeg");
-    console.log(url);
-})();
+app.post('/uploadPhotos', upload.array('photos'), async (req, res) => {
+    if(req.files) {
+        var urls = []
+        req.files.forEach( async (file) => {
+            const url = await uploadFile(file.path, uuidv4() + '-' + file.originalname)
+            urls.push(url)
+            fs.unlink(file.path, (err) => {
+                if (err) throw err
+            })
+            if (urls.length == req.files.length) {
+                res.json({ links: urls });
+            }
+        })
+    }
+    else throw 'error';
+});
+
+app.listen(PORT, () => {
+    console.log('Listening at ' + PORT );
+});
